@@ -24,7 +24,10 @@ public class InventoryFrame extends JFrame {
 
         setTitle("EcoNest - Inventory Management");
         setSize(900, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // DISPOSE_ON_CLOSE, not EXIT_ON_CLOSE: the dashboard opens this frame
+        // and closing it must return there, not terminate the application.
+        // InventoryGUI.main() still works standalone.
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         createGUI();
@@ -85,6 +88,7 @@ public class InventoryFrame extends JFrame {
                 "Product Name",
                 "Quantity",
                 "Reorder Level",
+                "Supplier",
                 "Status"
         };
 
@@ -184,6 +188,12 @@ public class InventoryFrame extends JFrame {
                                     tableModel.getValueAt(
                                             row, 3
                                     ).toString()
+                            );
+
+                            supplierField.setText(
+                                    tableModel.getValueAt(row, 4) == null
+                                            ? ""
+                                            : tableModel.getValueAt(row, 4).toString()
                             );
                         }
                     }
@@ -718,6 +728,7 @@ public class InventoryFrame extends JFrame {
                             item.getProductName(),
                             item.getQuantity(),
                             item.getReorderLevel(),
+                            item.getSupplierName(),
                             status
                     }
             );
