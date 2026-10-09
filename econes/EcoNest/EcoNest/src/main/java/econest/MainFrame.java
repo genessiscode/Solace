@@ -4,6 +4,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * The EcoNest dashboard. Lists every module as a card and opens each one in
@@ -19,18 +21,58 @@ public class MainFrame extends JFrame {
 
     private final InventoryManager inventoryManager = new InventoryManager();
 
-    /** One row per module: title, description, and whether it is built yet. */
-    private static final String[][] MODULES = {
-            {"1. Product Catalogue", "Add, update and remove plants, planters and kits", "no"},
-            {"2. Clients", "Household and office clients with contact details", "no"},
-            {"3. Stock / Inventory", "Quantity on hand, reorder levels and stock-in", "yes"},
-            {"4. Delivery Agents", "Delivery personnel and their vehicle details", "no"},
-            {"5. Client Orders", "Create orders, assign products, calculate totals", "no"},
-            {"6. Delivery Assignment", "Schedule and track deliveries per order", "no"},
-            {"7. Monthly Reports", "Low-stock alerts and revenue summaries", "no"},
-            {"8. Client Notifications", "Email the client when an order is dispatched", "no"},
-            {"9. Agent Notifications", "Email the agent when a delivery is assigned", "no"}
-    };
+    /**
+     * One dashboard module.
+     *
+     * <p>{@code frameFactory} builds the module's window, or is {@code null}
+     * when no frame class exists yet. Holding the factory here means the
+     * dashboard never has to match on the card's title text, and a module
+     * with no factory structurally cannot open the wrong window.</p>
+     */
+    private record Module(
+            String title,
+            String description,
+            Supplier<JFrame> frameFactory) {
+
+        boolean isBuilt() {
+            return frameFactory != null;
+        }
+    }
+
+    /**
+     * Every module from the project brief. Only modules 1-5 have a frame
+     * class; 6-9 are listed so the dashboard shows the full project scope,
+     * with disabled buttons.
+     */
+    private static final List<Module> MODULES = List.of(
+            new Module("1. Product Catalogue",
+                    "Add, update and remove plants, planters and kits",
+                    ProductCatalogueFrame::new),
+            new Module("2. Clients",
+                    "Household and office clients with contact details",
+                    ClientFrame::new),
+            new Module("3. Stock / Inventory",
+                    "Quantity on hand, reorder levels and stock-in",
+                    InventoryFrame::new),
+            new Module("4. Delivery Agents",
+                    "Delivery personnel and their vehicle details",
+                    AgentFrame::new),
+            new Module("5. Client Orders",
+                    "Create orders, assign products, calculate totals",
+                    OrderFrame::new),
+            new Module("6. Delivery Assignment",
+                    "Schedule and track deliveries per order",
+                    null),
+            new Module("7. Monthly Reports",
+                    "Low-stock alerts and revenue summaries",
+                    null),
+            new Module("8. Client Notifications",
+                    "Email the client when an order is dispatched",
+                    null),
+            new Module("9. Agent Notifications",
+                    "Email the agent when a delivery is assigned",
+                    null)
+    );
 
     public MainFrame() {
 
@@ -88,21 +130,22 @@ public class MainFrame extends JFrame {
 
         JPanel grid = new JPanel(new GridLayout(3, 3, 12, 12));
 
-        for (String[] module : MODULES) {
+        for (Module module : MODULES) {
 
             grid.add(createModuleCard(
-                    module[0],
-                    module[1],
-                    "yes".equals(module[2])));
+                    module.title(),
+                    module.description(),
+                    module.isBuilt()));
         }
 
         return grid;
     }
 
     /**
-     * One module card: a title, a description and an Open button.
+     * One module card: a title, a description, a status line and an Open
+     * button.
      *
-     * @param enabled whether the module is built yet
+     * @param enabled whether a frame exists for this module yet
      */
     private JPanel createModuleCard(
             String title,
@@ -129,18 +172,34 @@ public class MainFrame extends JFrame {
 
         JButton openButton = new JButton("Open");
 
-        openButton.setEnabled(enabled);
+        JLabel statusLabel = new JLabel();
 
-        if (!enabled) {
-            openButton.setToolTipText("Coming in a later build");
-            card.setToolTipText("Coming in a later build");
-        } else {
+        statusLabel.setFont(new Font("SansSerif", Font.PLAIN, 11));
+
+        if (enabled) {
+
+            statusLabel.setText("Ready");
             openButton.addActionListener(e -> openModule(title));
+
+        } else {
+
+            // No frame class exists yet, so the button is disabled and the
+            // card says so rather than opening a "coming soon" dialog.
+            openButton.setEnabled(false);
+            statusLabel.setText("Not built yet");
+            statusLabel.setForeground(Color.GRAY);
+            openButton.setToolTipText("Not built yet");
+            card.setToolTipText("Not built yet");
         }
+
+        JPanel southPanel = new JPanel(new BorderLayout(5, 5));
+
+        southPanel.add(statusLabel, BorderLayout.NORTH);
+        southPanel.add(openButton, BorderLayout.SOUTH);
 
         card.add(titleLabel, BorderLayout.NORTH);
         card.add(descriptionArea, BorderLayout.CENTER);
-        card.add(openButton, BorderLayout.SOUTH);
+        card.add(southPanel, BorderLayout.SOUTH);
 
         return card;
     }
@@ -187,23 +246,33 @@ public class MainFrame extends JFrame {
     /**
      * Opens a module window. Each module disposes rather than exits, so this
      * dashboard stays alive and refreshes its summaries when the module closes.
+     *
+     * <p>Only reachable for modules whose Open button is enabled, so every
+     * branch here corresponds to a frame class that exists.</p>
      */
     private void openModule(String title) {
 
         JFrame moduleWindow;
 
-        if (title.startsWith("3.")) {
-
-            moduleWindow = new InventoryFrame();
-
-        } else {
-
-            JOptionPane.showMessageDialog(
-                    this,
-                    "This module is not built yet.");
-
+        // Find the module whose factory produces this title's window.
+        Module matched = null;
+        for (Module m : MODULES) {
+            if (m.title().equals(title)) { matched = m; break; }
+        }
+        if (matched == null || !matched.isBuilt()) {
+            JOptionPane.showMessageDialog(this, "No window available for: " + title);
             return;
         }
+        moduleWindow = matched.frameFactory().get();
+
+        // Defensive: never open a module whose factory is null (should not happen).
+        if (moduleWindow == null) {
+            JOptionPane.showMessageDialog(
+                    this, "Window factory returned null for: " + title);
+            return;
+        }
+
+        moduleWindow.setVisible(true);
 
         moduleWindow.addWindowListener(new WindowAdapter() {
 
