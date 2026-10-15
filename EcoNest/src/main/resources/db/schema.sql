@@ -1,13 +1,3 @@
--- ============================================================
--- EcoNest - full schema for all nine business features.
--- Fresh-install script: it DROPs and recreates every table.
--- Requires MariaDB / MySQL 8. All tables InnoDB (MyISAM cannot
--- hold foreign keys).
---
--- Apply with:
---   mysql -u root econest_db < src/main/resources/db/schema.sql
--- ============================================================
-
 SET FOREIGN_KEY_CHECKS = 0;
 
 DROP TABLE IF EXISTS notifications;
@@ -22,10 +12,6 @@ DROP TABLE IF EXISTS products;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ============================================================
--- products : the catalogue. Single source of truth for name,
---            price, eco-rating and category.
--- ============================================================
 CREATE TABLE products (
   product_id   VARCHAR(20)   NOT NULL,
   name         VARCHAR(100)  NOT NULL,
@@ -43,10 +29,6 @@ CREATE TABLE products (
   KEY idx_products_category (category)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- inventory : stock only. The product name lives in products
---             and is reached by JOIN.
--- ============================================================
 CREATE TABLE inventory (
   product_id     VARCHAR(20) NOT NULL,
   quantity       INT         NOT NULL DEFAULT 0,
@@ -61,9 +43,6 @@ CREATE TABLE inventory (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- clients
--- ============================================================
 CREATE TABLE clients (
   client_id    VARCHAR(20)  NOT NULL,
   name         VARCHAR(100) NOT NULL,
@@ -77,9 +56,6 @@ CREATE TABLE clients (
   KEY idx_clients_type (client_type)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- delivery agents and their vehicles
--- ============================================================
 CREATE TABLE agents (
   agent_id   VARCHAR(20)  NOT NULL,
   name       VARCHAR(100) NOT NULL,
@@ -103,15 +79,12 @@ CREATE TABLE vehicles (
     ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- orders and their line items
--- ============================================================
 CREATE TABLE orders (
   order_id     VARCHAR(20) NOT NULL,
   client_id    VARCHAR(20) NOT NULL,
   order_date   DATE        NOT NULL,
   status       ENUM('PENDING','CONFIRMED','DISPATCHED',
-                    'DELIVERED','CANCELLED')
+                     'DELIVERED','CANCELLED')
                NOT NULL DEFAULT 'PENDING',
   total_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,
   PRIMARY KEY (order_id),
@@ -139,9 +112,6 @@ CREATE TABLE order_items (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- deliveries : one order assigned to one agent
--- ============================================================
 CREATE TABLE deliveries (
   delivery_id    VARCHAR(20) NOT NULL,
   order_id       VARCHAR(20) NOT NULL,
@@ -161,9 +131,6 @@ CREATE TABLE deliveries (
     ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- ============================================================
--- notifications : audit log of emails sent
--- ============================================================
 CREATE TABLE notifications (
   notification_id  INT          NOT NULL AUTO_INCREMENT,
   recipient_type   ENUM('CLIENT','AGENT') NOT NULL,

@@ -1,14 +1,3 @@
--- ============================================================
--- EcoNest - demo data. Never loaded by the application.
---
--- Apply AFTER schema.sql:
---   mysql -u root econest_db < src/main/resources/db/seed.sql
---
--- Delete this file's contents before submission if a clean
--- database is preferred; the app creates all rows itself.
--- ============================================================
-
--- ---------- products ----------
 INSERT INTO products
   (product_id, name, category, price, eco_rating, description,
    sunlight, pet_safe, material, diameter_cm, difficulty)
@@ -34,8 +23,6 @@ VALUES
   ('P010', 'Bonsai Starter Kit',  'KIT',     7500.00, 3,
    'Ficus with tools and guide',           NULL, NULL, NULL, NULL, 'ADVANCED');
 
--- ---------- inventory ----------
--- P001 carries forward the single row from the original econest_db.sql.
 INSERT INTO inventory (product_id, quantity, reorder_level, supplier_name) VALUES
   ('P001', 15,  5, 'GreenLeaf Supplies'),
   ('P002', 40, 10, 'GreenLeaf Supplies'),
@@ -48,7 +35,6 @@ INSERT INTO inventory (product_id, quantity, reorder_level, supplier_name) VALUE
   ('P009',  3,  5, 'GrowKit Lanka'),
   ('P010',  2,  3, 'GrowKit Lanka');
 
--- ---------- clients ----------
 INSERT INTO clients
   (client_id, name, client_type, address, phone, email, company_name)
 VALUES
@@ -63,7 +49,6 @@ VALUES
   ('C005', 'Ravi Silva',        'HOUSEHOLD', '3 Hill Street, Negombo',
    '0765432109', 'ravi@example.com',   NULL);
 
--- ---------- agents and vehicles ----------
 INSERT INTO agents (agent_id, name, phone, email, status) VALUES
   ('A001', 'Kasun Bandara',  '0751112223', 'kasun@econest.example',  'AVAILABLE'),
   ('A002', 'Dilani Jayawardena', '0752223334', 'dilani@econest.example', 'AVAILABLE'),
@@ -76,7 +61,6 @@ INSERT INTO vehicles (vehicle_id, agent_id, type, plate_number, capacity_kg) VAL
   ('V003', 'A003', 'LORRY',     'WP-9012', 2500.00),
   ('V004', 'A004', 'CAR',       'KL-3456',  300.00);
 
--- ---------- orders and line items ----------
 INSERT INTO orders (order_id, client_id, order_date, status, total_amount) VALUES
   ('O001', 'C001', '2026-09-05', 'DELIVERED',  6700.00),
   ('O002', 'C003', '2026-09-18', 'DISPATCHED', 14400.00),
@@ -98,7 +82,6 @@ VALUES
   ('O003', 'P004', 1,  950.00,   950.00),
   ('O004', 'P010', 1, 7500.00,  7500.00);
 
--- ---------- deliveries ----------
 INSERT INTO deliveries
   (delivery_id, order_id, agent_id, scheduled_date, status, delivered_at)
 VALUES
