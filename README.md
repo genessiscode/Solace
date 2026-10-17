@@ -37,6 +37,11 @@ EcoNest/
 │   │   │       ├── OrderStatus.java           # Enum: PENDING..CANCELLED
 │   │   │       ├── OrderManager.java          # Order CRUD
 │   │   │       ├── OrderFrame.java            # Order UI
+│   │   │       ├── Delivery.java              # Delivery assignment model
+│   │   │       ├── DeliveryManager.java       # Delivery assignment DB ops
+│   │   │       ├── DeliveryFrame.java         # Delivery assignment UI
+│   │   │       ├── DeliveryDBConnection.java  # Module JDBC connection helper
+│   │   │       ├── DeliveryAssignmentApp.java # Standalone launcher (Task 6)
 │   │   │       ├── ReportManager.java         # Monthly reports
 │   │   │       ├── ReportFrame.java           # Reports UI
 │   │   │       ├── DBConnection.java          # JDBC connection pool
@@ -66,7 +71,7 @@ EcoNest/
 | 3 | Stock / Inventory | **Built** | K.A.R.P Sathsarani |
 | 4 | Delivery Agents | Planned | V Hemakesh |
 | 5 | Client Orders | Planned | Kaveesha Nawod |
-| 6 | Delivery Assignment | Planned | Umar Luqman |
+| 6 | Delivery Assignment | **Built** | Umar Luqman |
 | 7 | Monthly Reports | Planned | Sanuk Jayathunga |
 | 8 | Client Notifications | Planned | Kasun Chiwantha |
 | 9 | Agent Notifications | Planned | Kasun Chiwantha |
