@@ -66,9 +66,9 @@ EcoNest/
 
 | # | Module | Status | Assigned To |
 |---|--------|--------|-------------|
-| 1 | Product Catalogue | Built | Sanuk Jayathunga |
+| 1 | Product Catalogue | Planned | Sanuk Jayathunga |
 | 2 | Client Management | Planned | Eranda Sandeep |
-| 3 | Stock / Inventory | **Built** | K.A.R.P Sathsarani |
+| 3 | Stock / Inventory | Planned | K.A.R.P Sathsarani |
 | 4 | Delivery Agents | Planned | V Hemakesh |
 | 5 | Client Orders | Planned | Kaveesha Nawod |
 | 6 | Delivery Assignment | **Built** | Umar Luqman |
