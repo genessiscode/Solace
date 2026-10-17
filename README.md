@@ -14,9 +14,6 @@ EcoNest/
 │   │   │       ├── Main.java                  # Application entry point
 │   │   │       ├── MainFrame.java             # Dashboard with 9 module cards
 │   │   │       ├── Product.java               # Abstract base class
-│   │   │       ├── Plant.java                 # Plant product (sunlight, petSafe)
-│   │   │       ├── Planter.java               # Planter product (material, diameter)
-│   │   │       ├── GardenKit.java             # Kit product (difficulty)
 │   │   │       ├── ProductCategory.java       # Enum: PLANT, PLANTER, KIT
 │   │   │       ├── ProductManager.java        # CRUD for product catalogue
 │   │   │       ├── Inventory.java             # Stock item model
@@ -55,7 +52,7 @@ EcoNest/
 │       └── java/
 │           └── econest/                       # JUnit 5 tests
 │               ├── ProductTest.java
-│               ├── ProductManagerTest.java
+│               └── ProductManagerTest.java
 │               ├── InventoryTest.java
 │               ├── InventoryManagerTest.java
 │               ├── DBConnectionTest.java
@@ -66,7 +63,7 @@ EcoNest/
 
 | # | Module | Status | Assigned To |
 |---|--------|--------|-------------|
-| 1 | Product Catalogue | Planned | Sanuk Jayathunga |
+| 1 | Product Catalogue | **Built** | Sanuk Jayathunga |
 | 2 | Client Management | Planned | Eranda Sandeep |
 | 3 | Stock / Inventory | Planned | K.A.R.P Sathsarani |
 | 4 | Delivery Agents | Planned | V Hemakesh |
