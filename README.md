@@ -82,32 +82,7 @@ EcoNest/
 - **mysql-connector-j** 8.0.33
 - **JUnit 5.10.1** for testing
 
-## Quick Start
 
-1. **Prerequisites**
-   - Java 21 JDK
-   - Maven 3.9+
-   - MariaDB/MySQL running locally
-
-2. **Database Setup**
-   ```bash
-   mysql -u root -e "CREATE DATABASE IF NOT EXISTS econest_db;"
-   mysql -u root econest_db < src/main/resources/db/schema.sql
-   mysql -u root econest_db < src/main/resources/db/seed.sql
-   ```
-
-3. **Configuration**
-   ```bash
-   cp src/main/resources/config.properties.template src/main/resources/config.properties
-   # Edit config.properties with your DB credentials if different from defaults
-   ```
-
-4. **Build & Run**
-   ```bash
-   mvn clean compile
-   mvn test
-   mvn exec:java
-   ```
 
 ## Team Members
 
