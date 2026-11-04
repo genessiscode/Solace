@@ -11,8 +11,8 @@ public class InventoryManager {
 
         String sql =
                 "INSERT INTO inventory " +
-                        "(product_id, product_name, quantity, reorder_level, supplier_name) " +
-                        "VALUES (?, ?, ?, ?, ?)";
+                        "(product_id, quantity, reorder_level, supplier_name) " +
+                        "VALUES (?, ?, ?, ?)";
 
         try (Connection connection =
                      DBConnection.getConnection();
@@ -24,23 +24,18 @@ public class InventoryManager {
                     inventory.getProductId()
             );
 
-            statement.setString(
-                    2,
-                    inventory.getProductName()
-            );
-
             statement.setInt(
-                    3,
+                    2,
                     inventory.getQuantity()
             );
 
             statement.setInt(
-                    4,
+                    3,
                     inventory.getReorderLevel()
             );
 
             statement.setString(
-                    5,
+                    4,
                     ""
             );
 
@@ -60,7 +55,10 @@ public class InventoryManager {
                 new ArrayList<>();
 
         String sql =
-                "SELECT * FROM inventory";
+                "SELECT i.product_id, p.name AS product_name, " +
+                        "i.quantity, i.reorder_level " +
+                        "FROM inventory i " +
+                        "JOIN products p ON p.product_id = i.product_id";
 
         try (Connection connection =
                      DBConnection.getConnection();
@@ -104,8 +102,11 @@ public class InventoryManager {
             String productId) {
 
         String sql =
-                "SELECT * FROM inventory " +
-                        "WHERE product_id = ?";
+                "SELECT i.product_id, p.name AS product_name, " +
+                        "i.quantity, i.reorder_level " +
+                        "FROM inventory i " +
+                        "JOIN products p ON p.product_id = i.product_id " +
+                        "WHERE i.product_id = ?";
 
         try (Connection connection =
                      DBConnection.getConnection();
@@ -154,7 +155,6 @@ public class InventoryManager {
 
         String sql =
                 "UPDATE inventory SET " +
-                        "product_name = ?, " +
                         "quantity = ?, " +
                         "reorder_level = ? " +
                         "WHERE product_id = ?";
@@ -164,23 +164,18 @@ public class InventoryManager {
              PreparedStatement statement =
                      connection.prepareStatement(sql)) {
 
-            statement.setString(
-                    1,
-                    updatedItem.getProductName()
-            );
-
             statement.setInt(
-                    2,
+                    1,
                     updatedItem.getQuantity()
             );
 
             statement.setInt(
-                    3,
+                    2,
                     updatedItem.getReorderLevel()
             );
 
             statement.setString(
-                    4,
+                    3,
                     productId
             );
 
