@@ -1,18 +1,11 @@
 package econest;
 
-/**
- * A living plant. Adds the two attributes only plants have.
- */
 public class Plant extends Product {
 
     private final String sunlight;
 
     private final boolean petSafe;
 
-    /**
-     * @param sunlight the light requirement, for example {@code LOW}, {@code MEDIUM}, {@code HIGH}
-     * @param petSafe  whether the plant is safe around pets
-     */
     public Plant(
             String productId,
             String name,
@@ -33,16 +26,10 @@ public class Plant extends Product {
         return ProductCategory.PLANT;
     }
 
-    /**
-     * @return the light requirement, or an empty string when unset
-     */
     public String getSunlight() {
         return sunlight;
     }
 
-    /**
-     * @return {@code true} if the plant is safe around pets
-     */
     public boolean isPetSafe() {
         return petSafe;
     }

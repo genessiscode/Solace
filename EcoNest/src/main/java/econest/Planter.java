@@ -1,19 +1,11 @@
 package econest;
 
-/**
- * A container or pot. Adds the two attributes only planters have.
- */
 public class Planter extends Product {
 
     private final String material;
 
     private final int diameterCm;
 
-    /**
-     * @param material   the construction material, for example {@code TERRACOTTA}
-     * @param diameterCm the diameter in centimetres; must not be negative
-     * @throws IllegalArgumentException if {@code diameterCm} is negative
-     */
     public Planter(
             String productId,
             String name,
@@ -40,16 +32,10 @@ public class Planter extends Product {
         return ProductCategory.PLANTER;
     }
 
-    /**
-     * @return the construction material, or an empty string when unset
-     */
     public String getMaterial() {
         return material;
     }
 
-    /**
-     * @return the diameter in centimetres
-     */
     public int getDiameterCm() {
         return diameterCm;
     }
