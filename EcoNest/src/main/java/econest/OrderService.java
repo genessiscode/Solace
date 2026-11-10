@@ -1,8 +1,5 @@
-package econest.service;
+package econest;
 
-import econest.model.Client;
-import econest.model.Order;
-import econest.model.OrderItem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

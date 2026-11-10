@@ -1,44 +1,60 @@
 package econest;
 
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DBConnection {
 
-    private static final String URL =
+    private static final String DEFAULT_URL =
             "jdbc:mysql://localhost:3306/econest_db";
 
-    private static final String USER =
+    private static final String DEFAULT_USER =
             "root";
 
-    private static final String PASSWORD =
+    private static final String DEFAULT_PASSWORD =
             "";
 
-    public static Connection getConnection() {
+    private DBConnection() {
 
-        try {
+    }
 
-            Connection connection =
-                    DriverManager.getConnection(
-                            URL,
-                            USER,
-                            PASSWORD
-                    );
+    public static Connection getConnection() throws SQLException {
 
-            System.out.println("Database connected successfully!");
+        Properties properties = loadProperties();
 
-            return connection;
+        String url = properties.getProperty("db.url", DEFAULT_URL).trim();
+        String user = properties.getProperty("db.user", DEFAULT_USER).trim();
+        String password = properties.getProperty("db.password", DEFAULT_PASSWORD);
 
+        return DriverManager.getConnection(url, user, password);
+    }
+
+    public static boolean isAvailable() {
+
+        try (Connection ignored = getConnection()) {
+            return true;
         } catch (SQLException e) {
-
-            System.out.println(
-                    "Database connection failed!"
-            );
-
-            e.printStackTrace();
-
-            return null;
+            return false;
         }
+    }
+
+    private static Properties loadProperties() {
+
+        Properties properties = new Properties();
+
+        try (InputStream input = DBConnection.class.getClassLoader()
+                .getResourceAsStream("config.properties")) {
+
+            if (input != null) {
+                properties.load(input);
+            }
+        } catch (Exception ignored) {
+
+        }
+
+        return properties;
     }
 }

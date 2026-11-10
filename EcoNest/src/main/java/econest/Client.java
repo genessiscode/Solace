@@ -1,4 +1,4 @@
-package econest.model;
+package econest;
 
 public class Client {
     private final int id;

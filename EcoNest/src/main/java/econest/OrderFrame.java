@@ -1,10 +1,4 @@
-package econest.ui;
-
-import econest.model.Client;
-import econest.model.Order;
-import econest.model.OrderItem;
-import econest.model.Product;
-import econest.service.OrderService;
+package econest;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -35,15 +29,18 @@ public class OrderFrame extends JFrame {
         setTitle("EcoNest - Task 5: Client Orders");
         setSize(900, 620);
         setMinimumSize(new Dimension(700, 480));
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         // Temporary sample data. Replace these with Task 1 and Task 2 data on integration.
         clientBox.addItem(new Client(1, "Nimal Perera (Household)"));
         clientBox.addItem(new Client(2, "Green Office (Office)"));
-        productBox.addItem(new Product(1, "Aloe Vera Plant", 1500));
-        productBox.addItem(new Product(2, "Clay Planter", 900));
-        productBox.addItem(new Product(3, "Herb Garden Kit", 2500));
+        productBox.addItem(new Plant("P001", "Aloe Vera Plant", 1500, 5,
+                "Succulent", "HIGH", false));
+        productBox.addItem(new Planter("P002", "Clay Planter", 900, 4,
+                "Hand-thrown container", "CLAY", 15));
+        productBox.addItem(new GardenKit("P003", "Herb Garden Kit", 2500, 5,
+                "Starter kit", "BEGINNER"));
 
         JPanel top = new JPanel(new GridLayout(2, 1, 4, 4));
         JPanel clientRow = new JPanel(new FlowLayout(FlowLayout.LEFT));

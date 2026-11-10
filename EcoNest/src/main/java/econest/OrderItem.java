@@ -1,4 +1,4 @@
-package econest.model;
+package econest;
 
 public class OrderItem {
     private final Product product;

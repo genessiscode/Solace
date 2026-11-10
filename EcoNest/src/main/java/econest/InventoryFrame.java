@@ -24,7 +24,7 @@ public class InventoryFrame extends JFrame {
 
         setTitle("EcoNest - Inventory Management");
         setSize(900, 600);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
         createGUI();

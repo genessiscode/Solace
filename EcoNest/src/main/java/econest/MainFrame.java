@@ -211,7 +211,10 @@ public class MainFrame extends JFrame {
         openButton.setFocusable(module.built());
 
         if (module.built()) {
-            openButton.addActionListener(e -> module.frameFactory().get());
+            openButton.addActionListener(e -> {
+                JFrame frame = module.frameFactory().get();
+                frame.setVisible(true);
+            });
         }
 
         card.add(topRow, BorderLayout.NORTH);
