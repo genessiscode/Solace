@@ -46,7 +46,7 @@ public class MainFrame extends JFrame {
                     false, null),
             new Module("07", "Monthly Reports",
                     "Low-stock alerts and revenue summaries.",
-                    false, null),
+                    true, ReportFrame::new),
             new Module("08", "Client Notifications",
                     "Email clients when their order is dispatched.",
                     false, null),
@@ -119,11 +119,11 @@ public class MainFrame extends JFrame {
         ), BorderLayout.NORTH);
 
         StatCard liveCard = new StatCard("Modules live", UITheme.MOSS);
-        liveCard.setValue(2);
-        liveCard.setHint("Catalogue & delivery");
+        liveCard.setValue(3);
+        liveCard.setHint("Catalogue, delivery & reports");
 
         StatCard plannedCard = new StatCard("In development", UITheme.WARNING);
-        plannedCard.setValue(7);
+        plannedCard.setValue(6);
         plannedCard.setHint("Built by the Solace team");
 
         StatCard totalCard = new StatCard("Project modules", UITheme.FOREST);

@@ -52,7 +52,8 @@ EcoNest/
 │       └── java/
 │           └── econest/                       # JUnit 5 tests
 │               ├── ProductTest.java
-│               └── ProductManagerTest.java
+│               ├── ProductManagerTest.java
+│               ├── ReportManagerTest.java
 │               ├── InventoryTest.java
 │               ├── InventoryManagerTest.java
 │               ├── DBConnectionTest.java
@@ -69,7 +70,7 @@ EcoNest/
 | 4 | Delivery Agents | Planned | V Hemakesh |
 | 5 | Client Orders | Planned | Kaveesha Nawod |
 | 6 | Delivery Assignment | **Built** | Umar Luqman |
-| 7 | Monthly Reports | Planned | Sanuk Jayathunga |
+| 7 | Monthly Reports | **Built** | Sanuk Jayathunga |
 | 8 | Client Notifications | Planned | Kasun Chiwantha |
 | 9 | Agent Notifications | Planned | Kasun Chiwantha |
 
