@@ -372,6 +372,7 @@ public final class UITheme {
                 case "FAILED":
                 case "CANCELLED":
                 case "INACTIVE":
+                case "LOW":
                     pill = DANGER_BG;
                     setForeground(DANGER);
                     break;
