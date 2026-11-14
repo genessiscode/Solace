@@ -34,8 +34,7 @@ EcoNest/
 │   │   │       ├── VehicleType.java           # Enum: VAN, MOTORBIKE, LORRY, CAR
 │   │   │       ├── Order.java                 # Order model
 │   │   │       ├── OrderItem.java             # Order line item
-│   │   │       ├── OrderStatus.java           # Enum: PENDING..CANCELLED
-│   │   │       ├── OrderManager.java          # Order CRUD
+│   │   │       ├── OrderService.java          # Order persistence and queries
 │   │   │       ├── OrderFrame.java            # Order UI
 │   │   │       ├── Delivery.java              # Delivery assignment model
 │   │   │       ├── DeliveryManager.java       # Delivery assignment DB ops
@@ -58,7 +57,10 @@ EcoNest/
 │               ├── ReportManagerTest.java
 │               ├── InventoryTest.java
 │               ├── InventoryManagerTest.java
-│               └── CustomerDAOTest.java
+│               ├── CustomerDAOTest.java
+│               ├── AgentManagerTest.java
+│               ├── OrderTest.java
+│               └── OrderServiceTest.java
 ```
 
 ## 9 Business Features (Modules)
@@ -68,8 +70,8 @@ EcoNest/
 | 1 | Product Catalogue | **Built** | Sanuk Jayathunga |
 | 2 | Client Management | **Built** | Eranda Sandeep |
 | 3 | Stock / Inventory | **Built** | K.A.R.P Sathsarani |
-| 4 | Delivery Agents | Planned | V Hemakesh |
-| 5 | Client Orders | Planned | Kaveesha Nawod |
+| 4 | Delivery Agents | **Built** | V Hemakesh |
+| 5 | Client Orders | **Built** | Kaveesha Nawod |
 | 6 | Delivery Assignment | **Built** | Umar Luqman |
 | 7 | Monthly Reports | **Built** | Sanuk Jayathunga |
 | 8 | Client Notifications | Planned | Kasun Chiwantha |
