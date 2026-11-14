@@ -3,6 +3,7 @@ package econest;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.sql.SQLException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class OrderFrame extends JFrame {
     private final JTable cartTable = new JTable(cartModel);
     private final JTable historyTable = new JTable(historyModel);
     private final List<OrderItem> cart = new ArrayList<>();
+    private final List<Order> history = new ArrayList<>();
     private final OrderService orderService = new OrderService();
 
     public OrderFrame() {
@@ -32,15 +34,7 @@ public class OrderFrame extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
 
-        // Temporary sample data. Replace these with Task 1 and Task 2 data on integration.
-        clientBox.addItem(new Client(1, "Nimal Perera (Household)"));
-        clientBox.addItem(new Client(2, "Green Office (Office)"));
-        productBox.addItem(new Plant("P001", "Aloe Vera Plant", 1500, 5,
-                "Succulent", "HIGH", false));
-        productBox.addItem(new Planter("P002", "Clay Planter", 900, 4,
-                "Hand-thrown container", "CLAY", 15));
-        productBox.addItem(new GardenKit("P003", "Herb Garden Kit", 2500, 5,
-                "Starter kit", "BEGINNER"));
+        loadReferenceData();
 
         JPanel top = new JPanel(new GridLayout(2, 1, 4, 4));
         JPanel clientRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -70,7 +64,7 @@ public class OrderFrame extends JFrame {
         cartPanel.add(cartActions, BorderLayout.SOUTH);
 
         JPanel historyPanel = new JPanel(new BorderLayout());
-        historyPanel.setBorder(BorderFactory.createTitledBorder("Order History (this session)"));
+        historyPanel.setBorder(BorderFactory.createTitledBorder("Order History"));
         historyPanel.add(new JScrollPane(historyTable), BorderLayout.CENTER);
         JButton detailsButton = new JButton("View Selected Order Details");
         JPanel historyActions = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -90,6 +84,47 @@ public class OrderFrame extends JFrame {
         clearButton.addActionListener(e -> clearCart());
         createButton.addActionListener(e -> createOrder());
         detailsButton.addActionListener(e -> viewDetails());
+
+        refreshHistory();
+    }
+
+    /**
+     * Clients and products come from the shared database tables (modules 1 and
+     * 2). If the database is unreachable the frame still opens, but the order
+     * form stays empty and the error is reported to the user.
+     */
+    private void loadReferenceData() {
+        try {
+            for (Client client : orderService.loadClients()) clientBox.addItem(client);
+            for (Product product : orderService.loadProducts()) productBox.addItem(product);
+        } catch (SQLException ex) {
+            showDatabaseError(ex);
+        }
+    }
+
+    private void refreshHistory() {
+        try {
+            history.clear();
+            history.addAll(orderService.getOrderHistory());
+        } catch (SQLException ex) {
+            showDatabaseError(ex);
+        }
+        historyModel.setRowCount(0);
+        for (Order order : history) {
+            historyModel.addRow(new Object[]{order.getOrderId(),
+                    order.getClient().getName(),
+                    order.getCreatedAt().format(
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                    order.getItems().size(),
+                    String.format("%.2f", order.calculateTotal())});
+        }
+    }
+
+    private void showDatabaseError(SQLException ex) {
+        JOptionPane.showMessageDialog(this,
+                "Database error: " + ex.getMessage()
+                        + "\nCheck config.properties and the MariaDB connection.",
+                "Database Unavailable", JOptionPane.ERROR_MESSAGE);
     }
 
     // Green EcoNest colour theme. This changes appearance only; order functionality is unchanged.
@@ -117,7 +152,7 @@ public class OrderFrame extends JFrame {
                 "Current Order", 0, 0, new Font("SansSerif", Font.BOLD, 14), deepGreen));
         historyPanel.setBorder(BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(174, 211, 187)),
-                "Order History (this session)", 0, 0, new Font("SansSerif", Font.BOLD, 14), deepGreen));
+                "Order History", 0, 0, new Font("SansSerif", Font.BOLD, 14), deepGreen));
 
         for (Component component : new Component[]{clientRow, productRow}) {
             for (Component child : ((JPanel) component).getComponents()) {
@@ -223,13 +258,16 @@ public class OrderFrame extends JFrame {
             return;
         }
         Client client = (Client) clientBox.getSelectedItem();
-        Order order = orderService.createOrder(client, cart);
-        historyModel.addRow(new Object[]{order.getOrderId(), client.getName(),
-                order.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
-                order.getItems().size(), String.format("%.2f", order.calculateTotal())});
-        clearCart();
-        JOptionPane.showMessageDialog(this, "Order #" + order.getOrderId()
-                + " created successfully!\nTotal: Rs. " + String.format("%.2f", order.calculateTotal()));
+        try {
+            Order order = orderService.createOrder(client, cart);
+            clearCart();
+            refreshHistory();
+            JOptionPane.showMessageDialog(this, "Order #" + order.getOrderId()
+                    + " saved successfully!\nTotal: Rs. "
+                    + String.format("%.2f", order.calculateTotal()));
+        } catch (SQLException ex) {
+            showDatabaseError(ex);
+        }
     }
 
     private void viewDetails() {
@@ -239,7 +277,8 @@ public class OrderFrame extends JFrame {
             return;
         }
         int row = historyTable.convertRowIndexToModel(selected);
-        Order order = orderService.getOrderHistory().get(row);
+        if (row < 0 || row >= history.size()) return;
+        Order order = history.get(row);
         StringBuilder message = new StringBuilder("Order #" + order.getOrderId()
                 + "\nClient: " + order.getClient().getName() + "\n\n");
         for (OrderItem item : order.getItems()) {
