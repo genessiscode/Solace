@@ -29,6 +29,46 @@ class CustomerDAOTest {
     }
 
     @Test
+    void customerValidationRejectsInvalidData() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new Customer(null, " ", "HOUSEHOLD", null, null, null, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Customer(null, "Test", "COMPANY", null, null, null, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Customer(null, "Test", "HOUSEHOLD", null, null, "not-an-email", null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Customer(null, "Test", "HOUSEHOLD", null, "abc", null, null));
+        assertThrows(IllegalArgumentException.class,
+                () -> new Customer(null, "Test", "OFFICE", null, null, null, " "));
+
+        Customer household = new Customer(
+                null, "  Nimal Perera  ", "HOUSEHOLD", null, null, null, "Ignored Company");
+        assertEquals("Nimal Perera", household.getName());
+        assertNull(household.getCompanyName());
+    }
+
+    @Test
+    void findByIdReturnsCustomerOrNull() throws Exception {
+        assumeDatabase();
+
+        String token = uniqueToken();
+        String id = null;
+        try {
+            id = dao.create(new Customer(
+                    null, "Lookup Customer " + token, "HOUSEHOLD",
+                    null, null, null, null));
+
+            Customer found = dao.findById(id);
+            assertNotNull(found);
+            assertEquals(id, found.getClientId());
+            assertEquals("Lookup Customer " + token, found.getName());
+            assertNull(dao.findById("C999999999"));
+        } finally {
+            deleteQuietly(id);
+        }
+    }
+
+    @Test
     void createSearchUpdateAndDeleteCustomer() throws Exception {
         assumeDatabase();
 

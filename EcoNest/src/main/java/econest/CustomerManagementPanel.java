@@ -154,7 +154,7 @@ public class CustomerManagementPanel extends JPanel {
         int row = table.convertRowIndexToModel(viewRow);
         String id = String.valueOf(model.getValueAt(row, 0));
         try {
-            for (Customer c : dao.getAll("", "ALL")) if (c.getClientId().equals(id)) return c;
+            return dao.findById(id);
         } catch (SQLException ex) { showDatabaseError(ex); }
         return null;
     }

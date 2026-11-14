@@ -40,6 +40,23 @@ public class CustomerDAO {
         return customers;
     }
 
+    public Customer findById(String clientId) throws SQLException {
+        String sql = "SELECT client_id, name, client_type, address, phone, email, company_name " +
+                     "FROM clients WHERE client_id = ?";
+        try (Connection con = DBConnection.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, clientId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return null;
+                return new Customer(
+                    rs.getString("client_id"), rs.getString("name"),
+                    rs.getString("client_type"), rs.getString("address"),
+                    rs.getString("phone"), rs.getString("email"),
+                    rs.getString("company_name"));
+            }
+        }
+    }
+
     public String create(Customer customer) throws SQLException {
         String sql = "INSERT INTO clients (client_id, name, client_type, address, phone, email, company_name) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";

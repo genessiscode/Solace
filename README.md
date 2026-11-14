@@ -24,6 +24,7 @@ EcoNest/
 │   │   │       ├── CustomerDAO.java           # Customer CRUD and search
 │   │   │       ├── CustomerFormDialog.java    # Add/edit customer dialog
 │   │   │       ├── CustomerManagementPanel.java # Customer management screen
+│   │   │       ├── CustomerManagementFrame.java # Dashboard module window
 │   │   │       ├── CustomerManagementDemo.java # Standalone customer launcher
 │   │   │       ├── Agent.java                 # Delivery agent model
 │   │   │       ├── AgentStatus.java           # Enum: AVAILABLE, ON_DELIVERY, INACTIVE
@@ -65,7 +66,7 @@ EcoNest/
 | # | Module | Status | Assigned To |
 |---|--------|--------|-------------|
 | 1 | Product Catalogue | **Built** | Sanuk Jayathunga |
-| 2 | Client Management | Planned | Eranda Sandeep |
+| 2 | Client Management | **Built** | Eranda Sandeep |
 | 3 | Stock / Inventory | **Built** | K.A.R.P Sathsarani |
 | 4 | Delivery Agents | Planned | V Hemakesh |
 | 5 | Client Orders | Planned | Kaveesha Nawod |
