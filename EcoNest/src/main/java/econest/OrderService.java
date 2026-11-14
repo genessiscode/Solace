@@ -28,7 +28,7 @@ public class OrderService {
                     + "FROM products ORDER BY product_id";
 
     private static final String SELECT_HISTORY =
-            "SELECT o.order_id, o.order_date, c.client_id, c.name AS client_name, "
+            "SELECT o.order_id, o.order_date, o.status, c.client_id, c.name AS client_name, "
                     + "oi.quantity, oi.unit_price, "
                     + "p.product_id, p.name AS product_name, p.category, "
                     + "p.eco_rating, p.description, p.sunlight, p.pet_safe, "
@@ -85,15 +85,143 @@ public class OrderService {
             connection.setAutoCommit(false);
             try {
                 String orderId = nextOrderId(connection);
+                reserveStock(connection, snapshot);
                 insertOrder(connection, orderId, client, total);
                 insertItems(connection, orderId, snapshot);
                 connection.commit();
-                return new Order(orderId, client, snapshot);
+                return new Order(orderId, client, snapshot,
+                        java.time.LocalDateTime.now(), "PENDING");
             } catch (SQLException | RuntimeException ex) {
                 connection.rollback();
                 throw ex;
             } finally {
                 connection.setAutoCommit(true);
+            }
+        }
+    }
+
+    /**
+     * Locks every inventory row the order touches, rejects the order when
+     * stock is short, and decrements the reserved quantities inside the
+     * caller's transaction.
+     */
+    private void reserveStock(Connection connection, List<OrderItem> items)
+            throws SQLException {
+
+        Map<String, Integer> requested = new LinkedHashMap<>();
+        Map<String, String> names = new LinkedHashMap<>();
+        for (OrderItem item : items) {
+            String productId = item.getProduct().getProductId();
+            requested.merge(productId, item.getQuantity(), Integer::sum);
+            names.put(productId, item.getProduct().getName());
+        }
+
+        for (Map.Entry<String, Integer> entry : requested.entrySet()) {
+            int available;
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "SELECT quantity FROM inventory WHERE product_id = ? FOR UPDATE")) {
+                statement.setString(1, entry.getKey());
+                try (ResultSet result = statement.executeQuery()) {
+                    if (!result.next()) {
+                        throw new IllegalStateException(
+                                "No stock record for " + names.get(entry.getKey())
+                                        + " (" + entry.getKey() + ").");
+                    }
+                    available = result.getInt("quantity");
+                }
+            }
+
+            if (available < entry.getValue()) {
+                throw new IllegalStateException(
+                        "Not enough stock for " + names.get(entry.getKey())
+                                + " (available: " + available
+                                + ", requested: " + entry.getValue() + ").");
+            }
+
+            try (PreparedStatement statement = connection.prepareStatement(
+                    "UPDATE inventory SET quantity = quantity - ? WHERE product_id = ?")) {
+                statement.setInt(1, entry.getValue());
+                statement.setString(2, entry.getKey());
+                statement.executeUpdate();
+            }
+        }
+    }
+
+    /**
+     * Cancels a pending or confirmed order and returns its quantities to
+     * inventory. Dispatched or delivered orders cannot be cancelled here.
+     *
+     * @return true when the order was cancelled, false when it was already
+     *         cancelled
+     */
+    public boolean cancelOrder(String orderId) throws SQLException {
+
+        try (Connection connection = DBConnection.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                String status;
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "SELECT status FROM orders WHERE order_id = ? FOR UPDATE")) {
+                    statement.setString(1, orderId);
+                    try (ResultSet result = statement.executeQuery()) {
+                        if (!result.next()) {
+                            throw new IllegalArgumentException(
+                                    "Order " + orderId + " was not found.");
+                        }
+                        status = result.getString("status");
+                    }
+                }
+
+                if ("CANCELLED".equals(status)) {
+                    connection.rollback();
+                    return false;
+                }
+                if (!("PENDING".equals(status) || "CONFIRMED".equals(status))) {
+                    connection.rollback();
+                    throw new IllegalStateException(
+                            "Order " + orderId + " is " + status
+                                    + " and can no longer be cancelled.");
+                }
+
+                restoreStock(connection, orderId);
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "UPDATE orders SET status = 'CANCELLED' WHERE order_id = ?")) {
+                    statement.setString(1, orderId);
+                    statement.executeUpdate();
+                }
+
+                connection.commit();
+                return true;
+            } catch (SQLException | RuntimeException ex) {
+                connection.rollback();
+                throw ex;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        }
+    }
+
+    private void restoreStock(Connection connection, String orderId)
+            throws SQLException {
+
+        try (PreparedStatement items = connection.prepareStatement(
+                "SELECT product_id, quantity FROM order_items WHERE order_id = ?")) {
+            items.setString(1, orderId);
+            try (ResultSet result = items.executeQuery()) {
+                while (result.next()) {
+                    try (PreparedStatement update = connection.prepareStatement(
+                            "UPDATE inventory SET quantity = quantity + ? "
+                                    + "WHERE product_id = ?")) {
+                        update.setInt(1, result.getInt("quantity"));
+                        update.setString(2, result.getString("product_id"));
+                        if (update.executeUpdate() == 0) {
+                            throw new IllegalStateException(
+                                    "No stock record for product "
+                                            + result.getString("product_id") + ".");
+                        }
+                    }
+                }
             }
         }
     }
@@ -111,7 +239,8 @@ public class OrderService {
                             orderId,
                             new Client(result.getString("client_id"),
                                     result.getString("client_name")),
-                            result.getDate("order_date").toLocalDate().atStartOfDay());
+                            result.getDate("order_date").toLocalDate().atStartOfDay(),
+                            result.getString("status"));
                     builders.put(orderId, builder);
                 }
                 builder.items.add(new OrderItem(
@@ -123,7 +252,7 @@ public class OrderService {
         List<Order> orders = new ArrayList<>();
         for (OrderBuilder builder : builders.values()) {
             orders.add(new Order(builder.orderId, builder.client,
-                    builder.items, builder.createdAt));
+                    builder.items, builder.createdAt, builder.status));
         }
         return orders;
     }
@@ -133,12 +262,54 @@ public class OrderService {
      * cancellation screens.
      */
     public void deleteOrder(String orderId) throws SQLException {
+
+        try (Connection connection = DBConnection.getConnection()) {
+            connection.setAutoCommit(false);
+            try {
+                String status = null;
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "SELECT status FROM orders WHERE order_id = ? FOR UPDATE")) {
+                    statement.setString(1, orderId);
+                    try (ResultSet result = statement.executeQuery()) {
+                        if (result.next()) status = result.getString("status");
+                    }
+                }
+
+                if (status != null && !"CANCELLED".equals(status)) {
+                    restoreStock(connection, orderId);
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM orders WHERE order_id = ?")) {
+                    statement.setString(1, orderId);
+                    statement.executeUpdate();
+                }
+
+                connection.commit();
+            } catch (SQLException | RuntimeException ex) {
+                connection.rollback();
+                throw ex;
+            } finally {
+                connection.setAutoCommit(true);
+            }
+        }
+    }
+
+    /**
+     * Current stock per product, used by the order form to show availability
+     * and to reject obvious over-orders before the transaction starts.
+     */
+    public Map<String, Integer> loadStockLevels() throws SQLException {
+        Map<String, Integer> stock = new LinkedHashMap<>();
         try (Connection connection = DBConnection.getConnection();
              PreparedStatement statement = connection.prepareStatement(
-                     "DELETE FROM orders WHERE order_id = ?")) {
-            statement.setString(1, orderId);
-            statement.executeUpdate();
+                     "SELECT product_id, quantity FROM inventory ORDER BY product_id");
+             ResultSet result = statement.executeQuery()) {
+            while (result.next()) {
+                stock.put(result.getString("product_id"), result.getInt("quantity"));
+            }
         }
+        return stock;
     }
 
     private String nextOrderId(Connection connection) throws SQLException {
@@ -220,13 +391,15 @@ public class OrderService {
         private final String orderId;
         private final Client client;
         private final java.time.LocalDateTime createdAt;
+        private final String status;
         private final List<OrderItem> items = new ArrayList<>();
 
         private OrderBuilder(String orderId, Client client,
-                             java.time.LocalDateTime createdAt) {
+                             java.time.LocalDateTime createdAt, String status) {
             this.orderId = orderId;
             this.client = client;
             this.createdAt = createdAt;
+            this.status = status;
         }
     }
 }

@@ -88,6 +88,8 @@ public final class UITheme {
         UIManager.put("nimbusBase", FOREST);
         UIManager.put("nimbusBlueGrey", BORDER);
         UIManager.put("nimbusLightBackground", CARD);
+        UIManager.put("nimbusSelectionBackground", MINT);
+        UIManager.put("nimbusSelectedText", DEEP);
         UIManager.put("text", TEXT);
 
         UIManager.put("Panel.background", BG);
@@ -101,6 +103,8 @@ public final class UITheme {
         UIManager.put("ComboBox.font", BODY);
         UIManager.put("ComboBox.foreground", TEXT);
         UIManager.put("ComboBox.background", CARD);
+        UIManager.put("ComboBox.selectionBackground", MINT);
+        UIManager.put("ComboBox.selectionForeground", DEEP);
         UIManager.put("Table.font", BODY);
         UIManager.put("Table.foreground", TEXT);
         UIManager.put("Table.background", CARD);

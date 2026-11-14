@@ -66,6 +66,52 @@ class OrderServiceTest {
     }
 
     @Test
+    void orderReservesAndCancelRestoresStock() throws Exception {
+        Client client = service.loadClients().get(0);
+        Product product = service.loadProducts().stream()
+                .filter(p -> serviceStock(p) >= 2)
+                .findFirst().orElseThrow(() -> new AssertionError("no stocked product"));
+
+        int before = serviceStock(product);
+        Order saved = service.createOrder(client, List.of(new OrderItem(product, 1)));
+        try {
+            assertEquals(before - 1, serviceStock(product),
+                    "creating an order should reserve one unit");
+
+            assertTrue(service.cancelOrder(saved.getOrderId()));
+            assertEquals(before, serviceStock(product),
+                    "cancelling an order should return the unit");
+            assertEquals("CANCELLED", service.getOrderHistory().stream()
+                    .filter(o -> o.getOrderId().equals(saved.getOrderId()))
+                    .findFirst().orElseThrow().getStatus());
+        } finally {
+            service.deleteOrder(saved.getOrderId());
+        }
+    }
+
+    @Test
+    void rejectsOrderBeyondAvailableStock() throws Exception {
+        Client client = service.loadClients().get(0);
+        Product product = service.loadProducts().get(0);
+        int before = serviceStock(product);
+
+        assertThrows(IllegalStateException.class,
+                () -> service.createOrder(client,
+                        List.of(new OrderItem(product, before + 999))));
+        assertEquals(before, serviceStock(product),
+                "a rejected order must not move stock");
+    }
+
+    private int serviceStock(Product product) {
+        try {
+            return service.loadStockLevels().getOrDefault(
+                    product.getProductId(), 0);
+        } catch (Exception ex) {
+            throw new AssertionError(ex);
+        }
+    }
+
+    @Test
     void rejectsEmptyOrders() {
         Client client = new Client("C001", "Nimal Perera");
         assertThrows(IllegalArgumentException.class,
