@@ -19,10 +19,12 @@ EcoNest/
 │   │   │       ├── Inventory.java             # Stock item model
 │   │   │       ├── InventoryManager.java      # Stock management with JOIN
 │   │   │       ├── InventoryFrame.java        # Inventory UI (6 columns)
-│   │   │       ├── Client.java                # Client model (HOUSEHOLD/OFFICE)
-│   │   │       ├── ClientType.java            # Enum
-│   │   │       ├── ClientManager.java         # Client CRUD
-│   │   │       ├── ClientFrame.java           # Client UI
+│   │   │       ├── Client.java                # Order-screen client option
+│   │   │       ├── Customer.java              # Customer model
+│   │   │       ├── CustomerDAO.java           # Customer CRUD and search
+│   │   │       ├── CustomerFormDialog.java    # Add/edit customer dialog
+│   │   │       ├── CustomerManagementPanel.java # Customer management screen
+│   │   │       ├── CustomerManagementDemo.java # Standalone customer launcher
 │   │   │       ├── Agent.java                 # Delivery agent model
 │   │   │       ├── AgentStatus.java           # Enum: AVAILABLE, ON_DELIVERY, INACTIVE
 │   │   │       ├── AgentManager.java          # Agent CRUD
@@ -41,8 +43,7 @@ EcoNest/
 │   │   │       ├── DeliveryAssignmentApp.java # Standalone launcher (Task 6)
 │   │   │       ├── ReportManager.java         # Monthly reports
 │   │   │       ├── ReportFrame.java           # Reports UI
-│   │   │       ├── DBConnection.java          # JDBC connection pool
-│   │   │       └── AppConfig.java             # Config from classpath
+│   │   │       └── DBConnection.java          # JDBC connection helper
 │   │   └── resources/
 │   │       ├── config.properties.template     # DB config template (committed)
 │   │       └── db/
@@ -56,8 +57,7 @@ EcoNest/
 │               ├── ReportManagerTest.java
 │               ├── InventoryTest.java
 │               ├── InventoryManagerTest.java
-│               ├── DBConnectionTest.java
-│               └── ...
+│               └── CustomerDAOTest.java
 ```
 
 ## 9 Business Features (Modules)
