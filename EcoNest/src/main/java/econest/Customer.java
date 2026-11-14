@@ -1,4 +1,4 @@
-package econest.customer;
+package econest;
 
 /** Represents one row from the clients table. */
 public class Customer {

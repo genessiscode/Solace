@@ -1,4 +1,4 @@
-package econest.customer;
+package econest;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class CustomerDAO {
         sql.append(" ORDER BY client_id");
 
         List<Customer> customers = new ArrayList<>();
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql.toString())) {
             for (int i = 0; i < values.size(); i++) ps.setObject(i + 1, values.get(i));
             try (ResultSet rs = ps.executeQuery()) {
@@ -43,7 +43,7 @@ public class CustomerDAO {
     public String create(Customer customer) throws SQLException {
         String sql = "INSERT INTO clients (client_id, name, client_type, address, phone, email, company_name) " +
                      "VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try (Connection con = DatabaseConnection.getConnection()) {
+        try (Connection con = DBConnection.getConnection()) {
             con.setAutoCommit(false);
             try {
                 String newId = nextCustomerId(con);
@@ -65,7 +65,7 @@ public class CustomerDAO {
     public void update(Customer customer) throws SQLException {
         String sql = "UPDATE clients SET name=?, client_type=?, address=?, phone=?, email=?, company_name=? " +
                      "WHERE client_id=?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, customer.getName());
             ps.setString(2, customer.getClientType());
@@ -80,7 +80,7 @@ public class CustomerDAO {
 
     public void delete(String clientId) throws SQLException {
         String sql = "DELETE FROM clients WHERE client_id = ?";
-        try (Connection con = DatabaseConnection.getConnection();
+        try (Connection con = DBConnection.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, clientId);
             if (ps.executeUpdate() == 0) throw new SQLException("Customer was not found.");

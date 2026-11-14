@@ -1,9 +1,8 @@
-package econest.customer;
+package econest;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.List;
@@ -22,11 +21,11 @@ public class CustomerManagementPanel extends JPanel {
         @Override public boolean isCellEditable(int row, int column) { return false; }
     };
     private final JTable table = new JTable(model);
-    private final JLabel countLabel = new JLabel("0 customers");
+    private final JLabel countLabel = UITheme.hint("0 customers");
 
     public CustomerManagementPanel() {
         setLayout(new BorderLayout());
-        setBackground(Theme.BACKGROUND);
+        setBackground(UITheme.BG);
         add(buildHeader(), BorderLayout.NORTH);
         add(buildMain(), BorderLayout.CENTER);
         loadCustomers();
@@ -34,30 +33,28 @@ public class CustomerManagementPanel extends JPanel {
 
     private JComponent buildHeader() {
         JPanel header = new JPanel(new BorderLayout());
-        header.setBackground(Theme.DARK);
+        header.setBackground(UITheme.DEEP);
         header.setBorder(new EmptyBorder(23, 28, 23, 28));
 
         JPanel titleBox = new JPanel();
         titleBox.setOpaque(false);
         titleBox.setLayout(new BoxLayout(titleBox, BoxLayout.Y_AXIS));
         JLabel eyebrow = new JLabel("ECONEST  /  CUSTOMER DIRECTORY");
-        eyebrow.setForeground(new Color(190, 218, 195));
-        eyebrow.setFont(Theme.bodyFont(Font.BOLD, 10));
+        eyebrow.setForeground(UITheme.SAGE);
+        eyebrow.setFont(UITheme.SMALL_BOLD);
         JLabel title = new JLabel("Customer Management");
-        title.setForeground(Theme.WHITE);
-        title.setFont(Theme.headingFont(25));
+        title.setForeground(Color.WHITE);
+        title.setFont(UITheme.H2.deriveFont(25f));
         JLabel subtitle = new JLabel("Manage household and office customer information");
-        subtitle.setForeground(new Color(222, 237, 224));
-        subtitle.setFont(Theme.bodyFont(Font.PLAIN, 12));
+        subtitle.setForeground(UITheme.MINT);
+        subtitle.setFont(UITheme.BODY);
         titleBox.add(eyebrow);
         titleBox.add(Box.createVerticalStrut(7));
         titleBox.add(title);
         titleBox.add(Box.createVerticalStrut(5));
         titleBox.add(subtitle);
 
-        JButton add = Theme.button("+  Add customer", true);
-        add.setBackground(new Color(91, 151, 109));
-        add.setBorder(new EmptyBorder(11, 17, 11, 17));
+        JButton add = UITheme.primaryButton("+  Add customer");
         add.addActionListener(e -> addCustomer());
         header.add(titleBox, BorderLayout.WEST);
         header.add(add, BorderLayout.EAST);
@@ -73,12 +70,11 @@ public class CustomerManagementPanel extends JPanel {
         toolbar.setOpaque(false);
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         left.setOpaque(false);
-        searchField.setFont(Theme.bodyFont(Font.PLAIN, 13));
-        searchField.setBorder(Theme.inputBorder());
+        UITheme.styleField(searchField);
         searchField.setPreferredSize(new Dimension(270, 38));
         searchField.putClientProperty("JTextField.placeholderText", "Search name, ID, phone or email...");
-        JButton search = Theme.button("Search", true);
-        JButton clear = Theme.button("Clear", false);
+        JButton search = UITheme.secondaryButton("Search");
+        JButton clear = UITheme.ghostButton("Clear");
         left.add(searchField);
         left.add(Box.createHorizontalStrut(8));
         left.add(search);
@@ -87,10 +83,8 @@ public class CustomerManagementPanel extends JPanel {
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         right.setOpaque(false);
-        JLabel filterLabel = new JLabel("Customer type");
-        filterLabel.setFont(Theme.bodyFont(Font.BOLD, 12));
-        filterLabel.setForeground(Theme.MUTED);
-        typeFilter.setFont(Theme.bodyFont(Font.PLAIN, 12));
+        JLabel filterLabel = UITheme.fieldLabel("Customer type");
+        UITheme.styleCombo(typeFilter);
         typeFilter.setPreferredSize(new Dimension(135, 38));
         right.add(filterLabel);
         right.add(typeFilter);
@@ -106,42 +100,23 @@ public class CustomerManagementPanel extends JPanel {
             loadCustomers();
         });
 
-        JPanel tableCard = new JPanel(new BorderLayout(0, 0));
-        tableCard.setBackground(Theme.WHITE);
-        tableCard.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Theme.BORDER, 1, true),
-            new EmptyBorder(12, 12, 12, 12)));
+        RoundedPanel tableCard = UITheme.card();
+        tableCard.setLayout(new BorderLayout());
 
+        UITheme.styleTable(table);
         table.setRowHeight(42);
-        table.setFont(Theme.bodyFont(Font.PLAIN, 12));
-        table.setForeground(Theme.TEXT);
-        table.setGridColor(new Color(237, 241, 237));
-        table.setShowVerticalLines(false);
-        table.setSelectionBackground(Theme.MINT);
-        table.setSelectionForeground(Theme.DARK);
-        table.setFillsViewportHeight(true);
-        table.setAutoCreateRowSorter(true);
-        JTableHeader th = table.getTableHeader();
-        th.setFont(Theme.bodyFont(Font.BOLD, 11));
-        th.setForeground(Theme.DARK);
-        th.setBackground(new Color(239, 246, 240));
-        th.setPreferredSize(new Dimension(0, 39));
-        JScrollPane scroll = new JScrollPane(table);
-        scroll.setBorder(BorderFactory.createEmptyBorder());
+        JScrollPane scroll = UITheme.scroll(table);
         tableCard.add(scroll, BorderLayout.CENTER);
 
         JPanel footer = new JPanel(new BorderLayout());
         footer.setOpaque(false);
-        countLabel.setFont(Theme.bodyFont(Font.PLAIN, 11));
-        countLabel.setForeground(Theme.MUTED);
         footer.add(countLabel, BorderLayout.WEST);
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         actions.setOpaque(false);
-        JButton refresh = Theme.button("Refresh", false);
-        JButton edit = Theme.button("Edit selected", false);
-        JButton delete = Theme.button("Delete selected", false);
-        delete.setForeground(Theme.RED);
+        JButton refresh = UITheme.secondaryButton("Refresh");
+        JButton edit = UITheme.secondaryButton("Edit selected");
+        JButton delete = UITheme.dangerButton("Delete selected");
         refresh.addActionListener(e -> loadCustomers());
         edit.addActionListener(e -> editCustomer());
         delete.addActionListener(e -> deleteCustomer());
