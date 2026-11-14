@@ -1,4 +1,4 @@
-package econest.customer;
+package econest;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -28,12 +28,12 @@ final class CustomerFormDialog extends JDialog {
 
     private JPanel buildContent() {
         JPanel root = new JPanel(new BorderLayout(0, 16));
-        root.setBackground(Theme.BACKGROUND);
+        root.setBackground(UITheme.BG);
         root.setBorder(new EmptyBorder(22, 24, 20, 24));
 
         JLabel heading = new JLabel(getTitle());
-        heading.setFont(Theme.headingFont(21));
-        heading.setForeground(Theme.DARK);
+        heading.setFont(UITheme.H2);
+        heading.setForeground(UITheme.DEEP);
         root.add(heading, BorderLayout.NORTH);
 
         JPanel fields = new JPanel(new GridBagLayout());
@@ -50,6 +50,13 @@ final class CustomerFormDialog extends JDialog {
         addRow(fields, gc, "Email", emailField);
         addressArea.setLineWrap(true);
         addressArea.setWrapStyleWord(true);
+        addressArea.setFont(UITheme.BODY);
+        addressArea.setForeground(UITheme.TEXT);
+        addressArea.setBackground(UITheme.CARD);
+        addressArea.setCaretColor(UITheme.FOREST);
+        addressArea.setBorder(BorderFactory.createCompoundBorder(
+            new UITheme.RoundedBorder(UITheme.BORDER, 10, 1),
+            new EmptyBorder(7, 10, 7, 10)));
         JScrollPane addressScroll = new JScrollPane(addressArea);
         addressScroll.setPreferredSize(new Dimension(280, 70));
         addRow(fields, gc, "Address", addressScroll);
@@ -57,8 +64,8 @@ final class CustomerFormDialog extends JDialog {
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 9, 0));
         actions.setOpaque(false);
-        JButton cancel = Theme.button("Cancel", false);
-        JButton save = Theme.button("Save customer", true);
+        JButton cancel = UITheme.secondaryButton("Cancel");
+        JButton save = UITheme.primaryButton("Save customer");
         cancel.addActionListener(e -> dispose());
         save.addActionListener(e -> save());
         actions.add(cancel);
@@ -70,18 +77,15 @@ final class CustomerFormDialog extends JDialog {
     private void addRow(JPanel panel, GridBagConstraints gc, String label, JComponent input) {
         gc.gridy = panel.getComponentCount() / 2;
         gc.gridx = 0; gc.weightx = 0;
-        JLabel l = new JLabel(label);
-        l.setFont(Theme.bodyFont(Font.BOLD, 12));
-        l.setForeground(Theme.TEXT);
+        JLabel l = UITheme.fieldLabel(label);
         panel.add(l, gc);
         gc.gridx = 1; gc.weightx = 1; gc.insets = new Insets(6, 8, 6, 0);
         if (input instanceof JTextField) {
             input.setPreferredSize(new Dimension(280, 36));
-            ((JTextField) input).setBorder(Theme.inputBorder());
-            ((JTextField) input).setFont(Theme.bodyFont(Font.PLAIN, 13));
+            UITheme.styleField((JTextField) input);
         } else if (input instanceof JComboBox) {
             input.setPreferredSize(new Dimension(280, 36));
-            input.setFont(Theme.bodyFont(Font.PLAIN, 13));
+            UITheme.styleCombo((JComboBox<?>) input);
         }
         panel.add(input, gc);
         gc.insets = new Insets(6, 0, 6, 10);

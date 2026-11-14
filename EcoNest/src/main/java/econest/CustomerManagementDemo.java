@@ -1,4 +1,4 @@
-package econest.customer;
+package econest;
 
 import javax.swing.*;
 
@@ -6,8 +6,7 @@ import javax.swing.*;
 public class CustomerManagementDemo {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            try { UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName()); }
-            catch (Exception ignored) {}
+            UITheme.install();
             JFrame frame = new JFrame("EcoNest | Customer Management");
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setSize(1180, 700);
