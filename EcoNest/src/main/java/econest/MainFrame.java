@@ -33,6 +33,11 @@ import java.util.function.Supplier;
 
 public class MainFrame extends JFrame {
 
+    static {
+        System.setProperty("awt.useSystemAAFontSettings", "on");
+        System.setProperty("swing.aatext", "true");
+    }
+
     private static final String VIEW_OVERVIEW = "overview";
     private static final String VIEW_MODULE = "module";
     private static final int SIDEBAR_WIDTH = 244;
