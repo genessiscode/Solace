@@ -25,7 +25,6 @@ EcoNest/
 │   │   │       ├── CustomerFormDialog.java    # Add/edit customer dialog
 │   │   │       ├── CustomerManagementPanel.java # Customer management screen
 │   │   │       ├── CustomerManagementFrame.java # Dashboard module window
-│   │   │       ├── CustomerManagementDemo.java # Standalone customer launcher
 │   │   │       ├── Agent.java                 # Delivery agent model
 │   │   │       ├── AgentStatus.java           # Enum: AVAILABLE, ON_DELIVERY, INACTIVE
 │   │   │       ├── AgentManager.java          # Agent CRUD
@@ -40,7 +39,6 @@ EcoNest/
 │   │   │       ├── DeliveryManager.java       # Delivery assignment DB ops
 │   │   │       ├── DeliveryFrame.java         # Delivery assignment UI
 │   │   │       ├── DeliveryDBConnection.java  # Module JDBC connection helper
-│   │   │       ├── DeliveryAssignmentApp.java # Standalone launcher (Task 6)
 │   │   │       ├── ReportManager.java         # Monthly reports
 │   │   │       ├── ReportFrame.java           # Reports UI
 │   │   │       └── DBConnection.java          # JDBC connection helper
